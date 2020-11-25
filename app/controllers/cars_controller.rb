@@ -66,43 +66,27 @@ class CarsController < ApplicationController
 
   def full_model
     @car = Car.find(params[:id])
-
-    car_full_model_string = "#{@car.make} #{@car.model} #{@car.year}"
-    render json: { full_model: car_full_model_string }
+    car_full_model_string = @car.full_model
   end
 
   def available_trunk_space
     @car = Car.find(params[:id])
-    space = @car.max_trunk_space - @car.current_trunk_usage
-    render json: { available_trunk_space: space }
+    render json: { available_trunk_space: @car.available_trunk_space }
   end
 
   def kilometers_before_wheel_change
     @car = Car.find(params[:id])
-    kms = @car.max_wheel_usage_before_change - @car.current_wheel_usage
-    render json: { kilometers_before_wheel_change: kms }
+    render json: { kilometers_before_wheel_change: @car.kilometers_before_wheel_change }
   end
 
   def store_in_trunk
     @car = Car.find(params[:id])
-    to_store = params[:amount_to_store].to_i
-
-    if (@car.current_trunk_usage + to_store) <= @car.max_trunk_space
-      @car.update!(current_trunk_usage: @car.current_trunk_usage + to_store)
-      render json: { car: @car }
-    else
-      raise RuntimeError, 'Cannot store requested amount, total exceeds maximum storage'
-    end
+    render json: { car: @car.store_in_trunk(params[:amount_to_store])}
   end
 
   def wheel_usage_status
     @car = Car.find(params[:id])
-
-    if (@car.current_wheel_usage / @car.max_wheel_usage_before_change) >= WHEEL_USAGE_WARNING_THRESHOLD
-      render json: { message: 'Please change your wheels' }
-    else
-      render json: { message: 'Wheels are OK, you can keep using them' }
-    end
+    render json: { message: @car.wheel_usage_status}
   end
 
   private
