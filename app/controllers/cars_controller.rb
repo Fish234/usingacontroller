@@ -2,8 +2,6 @@ class CarsController < ApplicationController
   skip_before_action :verify_authenticity_token
   before_action :set_car, only: [:show, :edit, :update, :destroy]
 
-  WHEEL_USAGE_WARNING_THRESHOLD = 0.8
-
   # GET /cars
   # GET /cars.json
   def index
@@ -28,7 +26,6 @@ class CarsController < ApplicationController
   # POST /cars.json
   def create
     @car = Car.new(car_params)
-
     respond_to do |format|
       if @car.save
         format.html { redirect_to @car, notice: 'Car was successfully created.' }
@@ -66,7 +63,7 @@ class CarsController < ApplicationController
 
   def full_model
     @car = Car.find(params[:id])
-    car_full_model_string = @car.full_model
+    render json: { full_model: @car.full_model }
   end
 
   def available_trunk_space
@@ -81,12 +78,12 @@ class CarsController < ApplicationController
 
   def store_in_trunk
     @car = Car.find(params[:id])
-    render json: { car: @car.store_in_trunk(params[:amount_to_store])}
+    render json: { car: @car.store_in_trunk(params[:amount_to_store]) }
   end
 
   def wheel_usage_status
     @car = Car.find(params[:id])
-    render json: { message: @car.wheel_usage_status}
+    render json: {message: @car.wheel_usage_status}
   end
 
   private
